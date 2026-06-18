@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/*
+ * Re-themes the existing gray/indigo utility classes used across every page
+ * (bg-gray-950, text-gray-400, bg-indigo-600, etc.) to the same navy/blue
+ * palette the mobile app uses (src/constants/colors.ts + src/theme/appTheme.ts
+ * in the FUD-Plus mobile project) — this single override cascades the
+ * mobile app's color identity onto every existing page without having to
+ * touch each file's className strings individually.
+ */
+@theme {
+  --color-gray-50: #f1f5f9;
+  --color-gray-100: #e2eaf8;
+  --color-gray-200: #cfe0fa;
+  --color-gray-300: #b8cef0;
+  --color-gray-400: #7a93c4;
+  --color-gray-500: #4a6490;
+  --color-gray-600: #2c4a82;
+  --color-gray-700: #1e3a6e;
+  --color-gray-800: #132754;
+  --color-gray-900: #0f2044;
+  --color-gray-950: #0a1628;
+
+  --color-indigo-300: #93c5fd;
+  --color-indigo-400: #60a5fa;
+  --color-indigo-500: #3b82f6;
+  --color-indigo-600: #2563eb;
+  --color-indigo-700: #1d4ed8;
+}
+
+body {
+  background: #020617;
+}
+
+/* The diagonal navy-to-blue gradient used behind every screen in the
+   mobile app (GradientScreen component) — applied to the panel shell and
+   the login/register pages so the whole web app matches it. */
+.app-gradient-bg {
+  background: linear-gradient(135deg, #0a0f1f 0%, #0d3a6e 35%, #1a5fa8 65%, #2e8fd4 85%, #5bbfe8 100%);
+  min-height: 100vh;
+}
+
+/* Frosted-glass card, matching the mobile app's translucent overlay cards. */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px -8px rgba(2, 6, 23, 0.5);
+}
+
+/* Thin, dark-themed scrollbar so long tables/sidebars don't look like a
+   stock browser widget against the navy background. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+table tbody tr { transition: background-color 0.15s ease; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
