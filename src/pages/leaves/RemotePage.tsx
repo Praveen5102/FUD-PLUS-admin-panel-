@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
-import Badge, { statusToBadge } from "../../components/ui/Badge";
+import Badge from "../../components/ui/Badge";
+import { statusToBadge } from "../../lib/badge";
 import Modal from "../../components/ui/Modal";
 import { CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import type { RemoteRequest } from "../../types";

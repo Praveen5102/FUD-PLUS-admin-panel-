@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
-import Badge, { statusToBadge } from "../../components/ui/Badge";
+import Badge from "../../components/ui/Badge";
+import { statusToBadge } from "../../lib/badge";
 import { RefreshCw } from "lucide-react";
 import type { AttendanceRecord } from "../../types";
 

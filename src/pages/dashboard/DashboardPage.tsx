@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import StatCard from "../../components/ui/StatCard";
-import Badge, { statusToBadge } from "../../components/ui/Badge";
+import Badge from "../../components/ui/Badge";
+import { statusToBadge } from "../../lib/badge";
 import { Users, CheckCircle2, Clock, CalendarX, TrendingUp, LogIn, LogOut } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 

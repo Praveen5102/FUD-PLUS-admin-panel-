@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import Badge, { statusToBadge } from "../../components/ui/Badge";
+import Badge from "../../components/ui/Badge";
+import { statusToBadge } from "../../lib/badge";
 import {
   ArrowLeft, Mail, Phone, Calendar, CreditCard, Clock,
   CheckCircle2, XCircle, Pencil, Trash2, Image as ImageIcon, X, CalendarCheck,

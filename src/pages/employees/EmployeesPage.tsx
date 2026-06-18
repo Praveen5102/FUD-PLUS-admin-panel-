@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import Modal from "../../components/ui/Modal";
-import Badge, { statusToBadge } from "../../components/ui/Badge";
+import Badge from "../../components/ui/Badge";
+import { statusToBadge } from "../../lib/badge";
 import { Plus, Search, Trash2, Edit, RefreshCw, Upload, ShieldCheck, Copy, Check } from "lucide-react";
 import type { Profile, Department } from "../../types";
 
