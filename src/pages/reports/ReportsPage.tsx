@@ -141,13 +141,13 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 sm:mb-8">
         <p className="text-sm text-gray-400">Export attendance data to Excel — filter by employee, department, date or download a full report</p>
       </div>
 
       {/* Export type cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {EXPORT_TYPES.map((t) => (
           <button
             key={t.id}
@@ -199,7 +199,7 @@ export default function ReportsPage() {
           )}
 
           {(exportType === "daterange" || exportType === "full" || exportType === "summary" || exportType === "department") && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1.5">From Date</label>
                 <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}

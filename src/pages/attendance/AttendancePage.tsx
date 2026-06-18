@@ -32,8 +32,8 @@ export default function AttendancePage() {
   const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "—";
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <p className="text-sm text-gray-500 mt-1">{records.length} records</p>
         </div>
@@ -43,16 +43,16 @@ export default function AttendancePage() {
       </div>
 
       {/* Date filter */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-400">From</label>
           <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
-            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-400">To</label>
           <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
-            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
         </div>
         <button onClick={fetchAttendance}
           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors">
@@ -66,6 +66,7 @@ export default function AttendancePage() {
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800">
@@ -110,6 +111,7 @@ export default function AttendancePage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

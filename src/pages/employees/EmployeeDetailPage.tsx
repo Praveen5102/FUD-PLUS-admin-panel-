@@ -70,13 +70,13 @@ export default function EmployeeDetailPage() {
   const initials = employee.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
       <button onClick={() => navigate("/employees")} className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-100 mb-6 transition-colors">
         <ArrowLeft size={16} /> Back to Employees
       </button>
 
       {/* Hero */}
-      <div className="glass-card rounded-2xl p-6 mb-6 flex items-center gap-6">
+      <div className="glass-card rounded-2xl p-4 sm:p-6 mb-6 flex flex-col sm:flex-row sm:items-center gap-6">
         {employee.profile_image ? (
           <img src={employee.profile_image} alt={employee.full_name} className="w-24 h-24 rounded-2xl object-cover border border-white/10 shadow-lg" />
         ) : (
@@ -97,7 +97,7 @@ export default function EmployeeDetailPage() {
             <span className="flex items-center gap-1.5"><Calendar size={14} /> Joined {fmtDate(employee.joining_date)}</span>
           </div>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 flex-wrap">
           <button onClick={() => navigate(`/employees?edit=${employee.id}`)} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors">
             <Pencil size={14} /> Edit
           </button>
@@ -108,7 +108,7 @@ export default function EmployeeDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         {[
           { label: "Attendance Rate", value: `${stats.rate}%`, icon: <Clock size={16} />, color: "indigo" },
           { label: "Present", value: stats.present, icon: <CheckCircle2 size={16} />, color: "green" },
@@ -128,7 +128,7 @@ export default function EmployeeDetailPage() {
 
       {/* Attendance history */}
       {focusDate && (
-        <div className="flex items-center justify-between mb-4 px-4 py-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 px-4 py-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
           <p className="text-sm text-indigo-300 flex items-center gap-2">
             <CalendarCheck size={15} />
             Showing attendance for {fmtDate(focusDate)} only
@@ -145,6 +145,7 @@ export default function EmployeeDetailPage() {
             {focusDate ? `${displayedAttendance.length} record(s) for this date` : `Last ${attendance.length} records, with check-in/out selfies`}
           </p>
         </div>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-800">
@@ -187,6 +188,7 @@ export default function EmployeeDetailPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Selfie lightbox */}

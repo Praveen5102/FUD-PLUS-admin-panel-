@@ -56,7 +56,7 @@ export default function SettingsPage() {
   if (!company) return <div className="flex items-center justify-center h-full"><div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" /></div>;
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
       <div className="mb-8">
         <p className="text-sm text-gray-500 mt-1">Manage company profile and leave policies</p>
       </div>
@@ -64,7 +64,7 @@ export default function SettingsPage() {
       {/* Company Info */}
       <div className="glass-card rounded-2xl p-6 mb-6">
         <h2 className="font-semibold text-gray-100 mb-5">Company Profile</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {([
             { label: "Company Name", key: "name" },
             { label: "Email", key: "email" },
@@ -102,7 +102,7 @@ export default function SettingsPage() {
         </div>
         <div className="space-y-3">
           {leaveTypes.map((lt) => (
-            <div key={lt.id} className="flex items-center gap-3 p-3 bg-gray-800 border border-gray-700 rounded-lg">
+            <div key={lt.id} className="flex flex-wrap items-center gap-3 p-3 bg-gray-800 border border-gray-700 rounded-lg">
               <input value={lt.name} onChange={(e) => updateLeaveType(lt, "name", e.target.value)}
                 className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none min-w-0" />
               <input value={lt.code} onChange={(e) => updateLeaveType(lt, "code", e.target.value.toUpperCase())}

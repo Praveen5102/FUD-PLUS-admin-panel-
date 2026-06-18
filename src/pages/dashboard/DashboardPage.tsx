@@ -108,9 +108,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
         <StatCard label="Total Employees" value={stats.totalEmployees} icon={<Users size={18} />} color="indigo" />
         <StatCard label="Present Today" value={stats.presentToday} icon={<CheckCircle2 size={18} />} color="green" sub={`${stats.totalEmployees ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% attendance`} />
         <StatCard label="Pending Leaves" value={stats.pendingLeaves} icon={<CalendarX size={18} />} color="yellow" />

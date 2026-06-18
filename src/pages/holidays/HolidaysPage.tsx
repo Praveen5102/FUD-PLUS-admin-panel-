@@ -88,12 +88,12 @@ export default function HolidaysPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <p className="text-sm text-gray-500 mt-1">{holidays.length} holidays configured</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           <button onClick={fetchHolidays} className="p-2 text-gray-400 hover:text-gray-100 hover:bg-gray-800 rounded-lg transition-colors"><RefreshCw size={16} /></button>
           <button onClick={syncFromGoogle} disabled={syncing} className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
             {syncing ? <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" /> : <CalendarDays size={16} />}
@@ -123,7 +123,7 @@ export default function HolidaysPage() {
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">{month}</h2>
               <div className="space-y-2">
                 {items.map((h) => (
-                  <div key={h.id} className="flex items-center justify-between glass-card rounded-2xl px-5 py-4">
+                  <div key={h.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 glass-card rounded-2xl px-5 py-4">
                     <div className="flex items-center gap-4">
                       <div className="text-center w-10">
                         <p className="text-xl font-bold text-gray-100">{new Date(h.holiday_date).getDate()}</p>

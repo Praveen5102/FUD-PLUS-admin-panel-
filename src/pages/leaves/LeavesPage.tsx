@@ -62,8 +62,8 @@ export default function LeavesPage() {
   const fmt = (date: string) => new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <p className="text-sm text-gray-500 mt-1">{requests.length} {filter} requests</p>
         </div>
@@ -73,7 +73,7 @@ export default function LeavesPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {(["all", "pending", "approved", "rejected"] as FilterStatus[]).map((s) => (
           <button
             key={s}
@@ -91,6 +91,7 @@ export default function LeavesPage() {
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800">
@@ -147,6 +148,7 @@ export default function LeavesPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

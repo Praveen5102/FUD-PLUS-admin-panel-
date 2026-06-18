@@ -239,8 +239,8 @@ export default function RegisterPage() {
   // Success screen
   if (success) {
     return (
-      <div className="app-gradient-bg flex items-center justify-center p-4 min-h-screen">
-        <div className="text-center max-w-sm">
+      <div className="app-gradient-bg flex items-center justify-center p-4 sm:p-6 min-h-screen">
+        <div className="text-center w-full max-w-sm">
           <CheckCircle2 size={64} className="text-green-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-100 mb-2">Company Registered!</h2>
           <p className="text-gray-400 text-sm mb-6">
@@ -255,7 +255,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="app-gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div className="app-gradient-bg min-h-screen flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -285,7 +285,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Card */}
-        <div className="glass-card rounded-2xl p-6 max-h-[65vh] overflow-y-auto">
+        <div className="glass-card rounded-2xl p-4 sm:p-6 max-h-[65vh] overflow-y-auto">
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
@@ -323,7 +323,7 @@ export default function RegisterPage() {
               <Field label="Address">
                 <Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} placeholder="123 MG Road" />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="City">
                   <Input value={company.city} onChange={(e) => setCompany({ ...company, city: e.target.value })} placeholder="Bengaluru" />
                 </Field>
@@ -342,7 +342,7 @@ export default function RegisterPage() {
               <Field label="Location Name">
                 <Input value={location.name} onChange={(e) => setLocation({ ...location, name: e.target.value })} placeholder="Head Office" />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Latitude *">
                   <Input value={location.latitude} onChange={(e) => setLocation({ ...location, latitude: e.target.value })} placeholder="12.9716" />
                 </Field>
@@ -405,7 +405,7 @@ export default function RegisterPage() {
                   <Field label="Shift Name *">
                     <Input value={shift.name} onChange={(e) => updateShift(i, { name: e.target.value })} placeholder="e.g. Morning Shift" />
                   </Field>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="Start Time *">
                       <Input type="time" value={shift.start_time} onChange={(e) => updateShift(i, { start_time: e.target.value })} />
                     </Field>

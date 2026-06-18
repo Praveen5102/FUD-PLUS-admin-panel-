@@ -175,8 +175,8 @@ export default function EmployeesPage() {
   const fmt = (date: string | null) => date ? new Date(date).toLocaleDateString("en-IN") : "—";
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <p className="text-sm text-gray-500 mt-1">{employees.filter(e => e.status === "active").length} active employees</p>
         </div>
@@ -209,6 +209,7 @@ export default function EmployeesPage() {
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800">
@@ -263,6 +264,7 @@ export default function EmployeesPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -289,7 +291,7 @@ export default function EmployeesPage() {
           </label>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { label: "Full Name *", key: "full_name", type: "text", placeholder: "John Smith" },
             { label: "Email *", key: "email", type: "email", placeholder: "john@company.com", disabled: !!editTarget },

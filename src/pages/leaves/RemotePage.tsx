@@ -95,8 +95,8 @@ export default function RemotePage() {
   const fmt = (date: string) => new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <p className="text-sm text-gray-500 mt-1">Remote work, client visits & business trips</p>
         </div>
@@ -105,7 +105,7 @@ export default function RemotePage() {
         </button>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {(["all", "pending", "approved", "rejected"] as FilterStatus[]).map((s) => (
           <button key={s} onClick={() => setFilter(s)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors capitalize ${filter === s ? "bg-indigo-600 text-white" : "bg-gray-800 text-gray-400 hover:text-gray-100"}`}
@@ -119,6 +119,7 @@ export default function RemotePage() {
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800">
@@ -185,6 +186,7 @@ export default function RemotePage() {
               {requests.length === 0 && <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">No {filter} remote requests.</td></tr>}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
