@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import { Download, FileText, User, Briefcase, Calendar, TrendingUp, BarChart2 } from "lucide-react";
@@ -6,6 +6,16 @@ import * as XLSX from "xlsx";
 import type { Profile, Department } from "../../types";
 
 type ExportTypeId = "full" | "employee" | "department" | "date" | "daterange" | "summary";
+
+interface ReportRecord {
+  attendance_date: string;
+  check_in: string | null;
+  check_out: string | null;
+  total_hours: number | null;
+  attendance_mode: string | null;
+  attendance_status: string | null;
+  profiles: { full_name: string; employee_id: string; departments: { name: string } | null } | null;
+}
 
 const EXPORT_TYPES: { id: ExportTypeId; icon: React.ReactNode; label: string; desc: string; color: string }[] = [
   { id: "full",       icon: <FileText size={18} />,    label: "Full Report",   desc: "All employees, all dates",     color: "indigo" },
@@ -43,16 +53,18 @@ export default function ReportsPage() {
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0]);
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => { if (user) fetchFilters(); }, [user]);
-
-  async function fetchFilters() {
+  const fetchFilters = useCallback(async () => {
     const [empRes, deptRes] = await Promise.all([
       supabase.from("profiles").select("*, departments(id, name)").eq("company_id", user!.profile.company_id).order("full_name"),
       supabase.from("departments").select("*").eq("company_id", user!.profile.company_id).eq("is_active", true),
     ]);
     setEmployees((empRes.data as Profile[]) ?? []);
     setDepartments((deptRes.data as Department[]) ?? []);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchFilters());
+  }, [user, fetchFilters]);
 
   const isReady = () => {
     if (exportType === "employee") return !!selectedEmployee;
@@ -81,10 +93,10 @@ export default function ReportsPage() {
       }
 
       const { data: rawRecords } = await query.order("attendance_date");
-      let records = rawRecords ?? [];
+      let records = (rawRecords as ReportRecord[] | null) ?? [];
 
       if (exportType === "department" && selectedDept) {
-        records = records.filter((r: any) => r.profiles?.departments?.name === selectedDept);
+        records = records.filter((r) => r.profiles?.departments?.name === selectedDept);
       }
 
       if (records.length === 0) { alert("No attendance data found for the selected filters."); setGenerating(false); return; }
@@ -93,7 +105,7 @@ export default function ReportsPage() {
       const wb = XLSX.utils.book_new();
 
       if (exportType !== "summary") {
-        const rows = records.map((r: any) => ({
+        const rows = records.map((r) => ({
           "Date": r.attendance_date,
           "Employee Name": r.profiles?.full_name ?? "—",
           "Employee ID": r.profiles?.employee_id ?? "—",
@@ -110,16 +122,16 @@ export default function ReportsPage() {
       }
 
       if (exportType === "full" || exportType === "department" || exportType === "summary") {
-        const depts = [...new Set(records.map((r: any) => r.profiles?.departments?.name ?? "Unknown"))];
+        const depts = [...new Set(records.map((r) => r.profiles?.departments?.name ?? "Unknown"))];
         const summaryRows = depts.map((dept) => {
-          const deptRecords = records.filter((r: any) => (r.profiles?.departments?.name ?? "Unknown") === dept);
+          const deptRecords = records.filter((r) => (r.profiles?.departments?.name ?? "Unknown") === dept);
           return {
             "Department": dept,
             "Total Records": deptRecords.length,
-            "Present": deptRecords.filter((r: any) => r.attendance_status === "present").length,
-            "Absent": deptRecords.filter((r: any) => r.attendance_status === "absent").length,
-            "Late": deptRecords.filter((r: any) => r.attendance_status === "late_login").length,
-            "Avg Hours": (deptRecords.reduce((s: number, r: any) => s + (r.total_hours ?? 0), 0) / deptRecords.length).toFixed(2),
+            "Present": deptRecords.filter((r) => r.attendance_status === "present").length,
+            "Absent": deptRecords.filter((r) => r.attendance_status === "absent").length,
+            "Late": deptRecords.filter((r) => r.attendance_status === "late_login").length,
+            "Avg Hours": (deptRecords.reduce((s, r) => s + (r.total_hours ?? 0), 0) / deptRecords.length).toFixed(2),
           };
         });
         const ws2 = XLSX.utils.json_to_sheet(summaryRows);

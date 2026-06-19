@@ -20,8 +20,8 @@ export default function LoginPage() {
     try {
       await signIn(email, password);
       navigate("/");
-    } catch (err: any) {
-      setError(err.message ?? "Invalid credentials. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }

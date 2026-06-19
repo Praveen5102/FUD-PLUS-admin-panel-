@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -46,6 +46,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
 
   const handleSignOut = async () => {
     await signOut();
@@ -57,7 +58,10 @@ export default function Layout() {
   );
 
   // Close the mobile drawer whenever the route changes.
-  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
+    setSidebarOpen(false);
+  }
 
   const sidebarContent = (
     <>

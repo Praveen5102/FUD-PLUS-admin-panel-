@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import Badge from "../../components/ui/Badge";
@@ -24,7 +24,7 @@ export default function EmployeeDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selfieView, setSelfieView] = useState<{ url: string; label: string } | null>(null);
 
-  async function fetchAll() {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [empRes, attRes] = await Promise.all([
       supabase.from("profiles").select("*, departments(id, name), user_roles(id, name)").eq("id", id).single(),
@@ -33,9 +33,11 @@ export default function EmployeeDetailPage() {
     setEmployee(empRes.data as Profile);
     setAttendance((attRes.data as AttendanceRecord[]) ?? []);
     setLoading(false);
-  }
+  }, [id]);
 
-  useEffect(() => { if (id) fetchAll(); }, [id]);
+  useEffect(() => {
+    if (id) Promise.resolve().then(() => fetchAll());
+  }, [id, fetchAll]);
 
   async function deleteEmployee() {
     if (!employee) return;

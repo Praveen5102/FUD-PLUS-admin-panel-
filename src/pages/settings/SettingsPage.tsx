@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import type { Company, LeaveType } from "../../types";
@@ -11,16 +11,18 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => { if (user) fetchSettings(); }, [user]);
-
-  async function fetchSettings() {
+  const fetchSettings = useCallback(async () => {
     const [cRes, ltRes] = await Promise.all([
       supabase.from("companies").select("*").eq("id", user!.profile.company_id).single(),
       supabase.from("leave_types").select("*").eq("company_id", user!.profile.company_id).order("name"),
     ]);
     setCompany(cRes.data);
     setLeaveTypes(ltRes.data ?? []);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchSettings());
+  }, [user, fetchSettings]);
 
   async function saveCompany() {
     if (!company) return;
@@ -34,7 +36,7 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  async function updateLeaveType(lt: LeaveType, field: string, value: any) {
+  async function updateLeaveType<K extends keyof LeaveType>(lt: LeaveType, field: K, value: LeaveType[K]) {
     setLeaveTypes(leaveTypes.map((l) => l.id === lt.id ? { ...l, [field]: value } : l));
     await supabase.from("leave_types").update({ [field]: value }).eq("id", lt.id);
   }

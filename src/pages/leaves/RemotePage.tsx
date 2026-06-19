@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import Badge from "../../components/ui/Badge";
@@ -25,9 +25,7 @@ export default function RemotePage() {
   const [adminNote, setAdminNote] = useState("");
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => { if (user) fetchRequests(); }, [user, filter]);
-
-  async function fetchRequests() {
+  const fetchRequests = useCallback(async () => {
     setLoading(true);
     let q = supabase.from("attenote_work_requests")
       .select("*, profiles!employee_id(full_name, employee_id, departments(name))")
@@ -36,7 +34,11 @@ export default function RemotePage() {
     const { data } = await q;
     setRequests((data as RemoteRequest[]) ?? []);
     setLoading(false);
-  }
+  }, [filter]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchRequests());
+  }, [user, filter, fetchRequests]);
 
   async function processAction() {
     if (!actionModal) return;
@@ -86,8 +88,8 @@ export default function RemotePage() {
       setActionModal(null);
       setAdminNote("");
       fetchRequests();
-    } catch (e: any) {
-      alert(e?.message ?? "Could not process this request. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not process this request. Please try again.");
     } finally {
       setProcessing(false);
     }
@@ -137,8 +139,8 @@ export default function RemotePage() {
               {requests.map((r) => (
                 <tr key={r.id} className="hover:bg-gray-800/50 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-100">{(r.profiles as any)?.full_name ?? "—"}</p>
-                    <p className="text-xs text-gray-500">{(r.profiles as any)?.departments?.name ?? "—"}</p>
+                    <p className="font-medium text-gray-100">{r.profiles?.full_name ?? "—"}</p>
+                    <p className="text-xs text-gray-500">{r.profiles?.departments?.name ?? "—"}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded text-xs">
@@ -146,7 +148,7 @@ export default function RemotePage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-xs">{fmt(r.from_date)} → {fmt(r.to_date)}</td>
-                  <td className="px-6 py-4"><Badge variant={statusToBadge(r.status) as any}>{r.status}</Badge></td>
+                  <td className="px-6 py-4"><Badge variant={statusToBadge(r.status)}>{r.status}</Badge></td>
                   <td className="px-6 py-4 text-gray-500 text-xs max-w-xs truncate">{r.reason ?? "—"}</td>
                   <td className="px-6 py-4">
                     {r.selfie_url ? (
@@ -196,7 +198,7 @@ export default function RemotePage() {
           <>
             <p className="text-sm text-gray-400 mb-4">
               {actionModal.action === "approved" ? "Approve" : "Reject"} {typeLabel[actionModal.request.request_type]} for{" "}
-              <span className="text-gray-100 font-medium">{(actionModal.request.profiles as any)?.full_name}</span>?
+              <span className="text-gray-100 font-medium">{actionModal.request.profiles?.full_name}</span>?
             </p>
             <div>
               <label className="block text-sm text-gray-400 mb-1.5">Admin Note (optional)</label>

@@ -158,8 +158,8 @@ export interface AuditLog {
   action: string;
   table_name: string | null;
   record_id: string | null;
-  old_values: Record<string, any> | null;
-  new_values: Record<string, any> | null;
+  old_values: Record<string, unknown> | null;
+  new_values: Record<string, unknown> | null;
   ip_address: string | null;
   created_at: string;
   profiles?: Pick<Profile, "full_name" | "employee_id">;

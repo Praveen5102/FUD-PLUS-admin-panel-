@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import Modal from "../../components/ui/Modal";
@@ -22,14 +22,16 @@ export default function HolidaysPage() {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
 
-  useEffect(() => { if (user) fetchHolidays(); }, [user]);
-
-  async function fetchHolidays() {
+  const fetchHolidays = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase.from("holidays").select("*").eq("company_id", user!.profile.company_id).order("holiday_date");
     setHolidays(data ?? []);
     setLoading(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchHolidays());
+  }, [user, fetchHolidays]);
 
   async function save() {
     if (!form.title || !form.holiday_date) return;
@@ -70,8 +72,8 @@ export default function HolidaysPage() {
       }
       setSyncMsg(newRows.length > 0 ? `Added ${newRows.length} public holidays for ${year}.` : `Already up to date for ${year}.`);
       fetchHolidays();
-    } catch (err: any) {
-      setSyncMsg(err.message ?? "Failed to sync holidays from Google Calendar.");
+    } catch (err) {
+      setSyncMsg(err instanceof Error ? err.message : "Failed to sync holidays from Google Calendar.");
     } finally {
       setSyncing(false);
     }

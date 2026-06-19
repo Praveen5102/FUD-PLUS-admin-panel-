@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
@@ -15,9 +15,7 @@ export default function AttendancePage() {
   const [dateFrom, setDateFrom] = useState(new Date().toISOString().split("T")[0]);
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0]);
 
-  useEffect(() => { if (user) fetchAttendance(); }, [user]);
-
-  async function fetchAttendance() {
+  const fetchAttendance = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("attendance")
@@ -28,7 +26,11 @@ export default function AttendancePage() {
       .order("check_in", { ascending: false });
     setRecords((data as AttendanceRecord[]) ?? []);
     setLoading(false);
-  }
+  }, [dateFrom, dateTo]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchAttendance());
+  }, [user, fetchAttendance]);
 
   const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "—";
 
@@ -88,8 +90,8 @@ export default function AttendancePage() {
                   className="hover:bg-gray-800/50 transition-colors cursor-pointer"
                 >
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-100">{(r.profiles as any)?.full_name ?? "—"}</p>
-                    <p className="text-xs text-gray-400">{(r.profiles as any)?.employee_id} · {(r.profiles as any)?.departments?.name ?? "—"}</p>
+                    <p className="font-medium text-gray-100">{r.profiles?.full_name ?? "—"}</p>
+                    <p className="text-xs text-gray-400">{r.profiles?.employee_id} · {r.profiles?.departments?.name ?? "—"}</p>
                   </td>
                   <td className="px-6 py-4 text-gray-400">{new Date(r.attendance_date).toLocaleDateString("en-IN")}</td>
                   <td className="px-6 py-4 text-gray-300 font-mono text-xs">{fmt(r.check_in)}</td>
@@ -101,7 +103,7 @@ export default function AttendancePage() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={statusToBadge(r.attendance_status ?? "") as any}>
+                    <Badge variant={statusToBadge(r.attendance_status ?? "")}>
                       {r.attendance_status?.replace("_", " ")}
                     </Badge>
                   </td>

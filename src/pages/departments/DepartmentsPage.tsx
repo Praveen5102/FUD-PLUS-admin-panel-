@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import Modal from "../../components/ui/Modal";
@@ -16,14 +16,16 @@ export default function DepartmentsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => { if (user) fetchDepts(); }, [user]);
-
-  async function fetchDepts() {
+  const fetchDepts = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase.from("departments").select("*").eq("company_id", user!.profile.company_id).order("name");
     setDepartments(data ?? []);
     setLoading(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchDepts());
+  }, [user, fetchDepts]);
 
   function openCreate() {
     setEditTarget(null);

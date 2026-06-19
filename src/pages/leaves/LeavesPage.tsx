@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import Badge from "../../components/ui/Badge";
@@ -18,9 +18,7 @@ export default function LeavesPage() {
   const [adminNote, setAdminNote] = useState("");
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => { if (user) fetchLeaves(); }, [user, filter]);
-
-  async function fetchLeaves() {
+  const fetchLeaves = useCallback(async () => {
     setLoading(true);
     let q = supabase.from("leave_requests")
       .select("*, profiles!employee_id(full_name, employee_id, departments(name)), leave_types(name, code)")
@@ -29,7 +27,11 @@ export default function LeavesPage() {
     const { data } = await q;
     setRequests((data as LeaveRequest[]) ?? []);
     setLoading(false);
-  }
+  }, [filter]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchLeaves());
+  }, [user, filter, fetchLeaves]);
 
   async function processAction() {
     if (!actionModal) return;
@@ -109,19 +111,19 @@ export default function LeavesPage() {
               {requests.map((r) => (
                 <tr key={r.id} className="hover:bg-gray-800/50 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-100">{(r.profiles as any)?.full_name ?? "—"}</p>
-                    <p className="text-xs text-gray-500">{(r.profiles as any)?.departments?.name ?? "—"}</p>
+                    <p className="font-medium text-gray-100">{r.profiles?.full_name ?? "—"}</p>
+                    <p className="text-xs text-gray-500">{r.profiles?.departments?.name ?? "—"}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-300 rounded text-xs font-mono">{(r.leave_types as any)?.code}</span>
-                    <span className="text-gray-400 ml-2">{(r.leave_types as any)?.name}</span>
+                    <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-300 rounded text-xs font-mono">{r.leave_types?.code}</span>
+                    <span className="text-gray-400 ml-2">{r.leave_types?.name}</span>
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-xs">
                     {fmt(r.from_date)} → {fmt(r.to_date)}
                   </td>
                   <td className="px-6 py-4 text-gray-300 font-medium">{r.total_days}d</td>
                   <td className="px-6 py-4">
-                    <Badge variant={statusToBadge(r.status) as any}>{r.status}</Badge>
+                    <Badge variant={statusToBadge(r.status)}>{r.status}</Badge>
                   </td>
                   <td className="px-6 py-4 text-gray-500 text-xs max-w-xs truncate">{r.reason ?? "—"}</td>
                   {filter === "pending" && (
@@ -164,7 +166,7 @@ export default function LeavesPage() {
           <>
             <p className="text-sm text-gray-400 mb-4">
               {actionModal.action === "approved" ? "Approve" : "Reject"} leave for{" "}
-              <span className="text-gray-100 font-medium">{(actionModal.request.profiles as any)?.full_name}</span>
+              <span className="text-gray-100 font-medium">{actionModal.request.profiles?.full_name}</span>
               {" "}({actionModal.request.total_days} day{actionModal.request.total_days > 1 ? "s" : ""})?
             </p>
             <div>

@@ -229,8 +229,8 @@ export default function RegisterPage() {
       } else {
         throw new Error(json.error ?? "Registration failed. Please try again.");
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {
       setSubmitting(false);
     }

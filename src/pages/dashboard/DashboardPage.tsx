@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
@@ -14,6 +14,14 @@ interface DashboardStats {
   absentToday: number;
   pendingLeaves: number;
   pendingRemote: number;
+}
+
+interface TodayAttendanceRow {
+  employee_id: string;
+  attendance_status: string | null;
+  check_in: string | null;
+  check_out: string | null;
+  profiles: { full_name: string; employee_id: string } | null;
 }
 
 interface RecentActivity {
@@ -35,23 +43,19 @@ export default function DashboardPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  useEffect(() => {
-    if (user) fetchDashboard();
-  }, [user]);
-
-  async function fetchDashboard() {
+  const fetchDashboard = useCallback(async () => {
     setLoading(true);
     const companyId = user!.profile.company_id;
 
     const [empRes, attRes, leaveRes, remoteRes] = await Promise.all([
-      supabase.from("profiles").select("id", { count: "exact" }).eq("company_id", companyId).eq("status", "active").neq("user_roles.name", "super_admin"),
+      supabase.from("profiles").select("id, user_roles!inner(name)", { count: "exact" }).eq("company_id", companyId).eq("status", "active").neq("user_roles.name", "super_admin"),
       supabase.from("attendance").select("employee_id, attendance_status, check_in, check_out, profiles!inner(full_name, employee_id)").eq("attendance_date", today),
       supabase.from("leave_requests").select("id", { count: "exact" }).eq("status", "pending"),
       supabase.from("attenote_work_requests").select("id", { count: "exact" }).eq("status", "pending"),
     ]);
 
     const totalEmployees = empRes.count ?? 0;
-    const todayRecords = attRes.data ?? [];
+    const todayRecords = (attRes.data as TodayAttendanceRow[] | null) ?? [];
     const presentToday = todayRecords.filter((r) => r.attendance_status === "present" || r.attendance_status === "late_login").length;
     const absentToday = todayRecords.filter((r) => r.attendance_status === "absent").length;
 
@@ -64,7 +68,7 @@ export default function DashboardPage() {
     });
 
     // Recent check-ins
-    const recentFormatted: RecentActivity[] = todayRecords.slice(0, 10).map((r: any) => ({
+    const recentFormatted: RecentActivity[] = todayRecords.slice(0, 10).map((r) => ({
       id: r.employee_id,
       full_name: r.profiles?.full_name ?? "—",
       employee_id: r.profiles?.employee_id ?? "—",
@@ -96,7 +100,11 @@ export default function DashboardPage() {
     });
     setWeekData(chartData);
     setLoading(false);
-  }
+  }, [user, today]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchDashboard());
+  }, [user, fetchDashboard]);
 
   const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "—";
 

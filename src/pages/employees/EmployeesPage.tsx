@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
@@ -45,21 +45,7 @@ export default function EmployeesPage() {
   const [showPasswordCard, setShowPasswordCard] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => { if (user) fetchAll(); }, [user]);
-
-  // Deep-link from EmployeeDetailPage's Edit button (?edit=<id>)
-  useEffect(() => {
-    const editId = searchParams.get("edit");
-    if (editId && employees.length) {
-      const target = employees.find((e) => e.id === editId);
-      if (target) {
-        openEdit(target);
-        setSearchParams({}, { replace: true });
-      }
-    }
-  }, [employees, searchParams]);
-
-  async function fetchAll() {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [empRes, deptRes] = await Promise.all([
       supabase.from("profiles")
@@ -71,7 +57,23 @@ export default function EmployeesPage() {
     setEmployees((empRes.data as Profile[]) ?? []);
     setDepartments((deptRes.data as Department[]) ?? []);
     setLoading(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchAll());
+  }, [user, fetchAll]);
+
+  // Deep-link from EmployeeDetailPage's Edit button (?edit=<id>)
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (editId && employees.length) {
+      const target = employees.find((e) => e.id === editId);
+      if (target) {
+        openEdit(target);
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [employees, searchParams, setSearchParams]);
 
   const filtered = employees.filter((e) =>
     e.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -154,8 +156,8 @@ export default function EmployeesPage() {
         setShowPasswordCard(true);
         fetchAll();
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setSaving(false);
     }
@@ -241,10 +243,10 @@ export default function EmployeesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-400 font-mono text-xs">{emp.employee_id}</td>
-                  <td className="px-6 py-4 text-gray-400">{(emp.departments as any)?.name ?? "—"}</td>
+                  <td className="px-6 py-4 text-gray-400">{emp.departments?.name ?? "—"}</td>
                   <td className="px-6 py-4 text-gray-400">{fmt(emp.joining_date)}</td>
                   <td className="px-6 py-4">
-                    <Badge variant={statusToBadge(emp.status) as any}>{emp.status}</Badge>
+                    <Badge variant={statusToBadge(emp.status)}>{emp.status}</Badge>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
@@ -293,18 +295,20 @@ export default function EmployeesPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            { label: "Full Name *", key: "full_name", type: "text", placeholder: "John Smith" },
-            { label: "Email *", key: "email", type: "email", placeholder: "john@company.com", disabled: !!editTarget },
-            { label: "Employee ID *", key: "employee_id", type: "text", placeholder: "EMP001", disabled: !!editTarget },
-            { label: "Phone", key: "phone", type: "tel", placeholder: "+91 98765 43210" },
-            { label: "Joining Date", key: "joining_date", type: "date" },
-          ].map(({ label, key, type, placeholder, disabled }) => (
+          {(
+            [
+              { label: "Full Name *", key: "full_name", type: "text", placeholder: "John Smith" },
+              { label: "Email *", key: "email", type: "email", placeholder: "john@company.com", disabled: !!editTarget },
+              { label: "Employee ID *", key: "employee_id", type: "text", placeholder: "EMP001", disabled: !!editTarget },
+              { label: "Phone", key: "phone", type: "tel", placeholder: "+91 98765 43210" },
+              { label: "Joining Date", key: "joining_date", type: "date" },
+            ] as { label: string; key: keyof Pick<EmployeeForm, "full_name" | "email" | "employee_id" | "phone" | "joining_date">; type: string; placeholder?: string; disabled?: boolean }[]
+          ).map(({ label, key, type, placeholder, disabled }) => (
             <div key={key}>
               <label className="block text-sm text-gray-400 mb-1.5">{label}</label>
               <input
                 type={type}
-                value={(form as any)[key]}
+                value={form[key]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                 placeholder={placeholder}
                 disabled={disabled}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import type { Profile, AuthUser } from "../types";
 
@@ -9,6 +9,26 @@ export function useAuth() {
   // LoginPage can show a clear "mobile only" popup instead of just
   // silently bouncing them back with no explanation.
   const [blocked, setBlocked] = useState(false);
+
+  const fetchProfile = useCallback(async (authUserId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*, user_roles(id, name, description), departments(id, name)")
+      .eq("auth_user_id", authUserId)
+      .single();
+
+    if (data) {
+      const role = (data.user_roles as { name: AuthUser["role"] } | null)?.name as AuthUser["role"];
+      if (!["super_admin", "admin"].includes(role)) {
+        await supabase.auth.signOut();
+        setUser(null);
+        setBlocked(true);
+      } else {
+        setUser({ profile: data as Profile, role });
+      }
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -22,27 +42,7 @@ export function useAuth() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  async function fetchProfile(authUserId: string) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*, user_roles(id, name, description), departments(id, name)")
-      .eq("auth_user_id", authUserId)
-      .single();
-
-    if (data) {
-      const role = (data.user_roles as any)?.name as AuthUser["role"];
-      if (!["super_admin", "admin"].includes(role)) {
-        await supabase.auth.signOut();
-        setUser(null);
-        setBlocked(true);
-      } else {
-        setUser({ profile: data as Profile, role });
-      }
-    }
-    setLoading(false);
-  }
+  }, [fetchProfile]);
 
   async function signIn(email: string, password: string) {
     setBlocked(false);

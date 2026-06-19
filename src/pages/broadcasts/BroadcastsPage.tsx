@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../hooks/useAuth";
 import Modal from "../../components/ui/Modal";
@@ -21,9 +21,7 @@ export default function BroadcastsPage() {
   const [form, setForm] = useState({ title: "", message: "", type: "global" as Broadcast["type"], target_department_id: "", expires_at: "", is_pinned: false });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { if (user) fetchAll(); }, [user]);
-
-  async function fetchAll() {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [bRes, dRes] = await Promise.all([
       supabase.from("broadcasts").select("*, departments(name), profiles!created_by(full_name)").eq("company_id", user!.profile.company_id).order("created_at", { ascending: false }),
@@ -32,7 +30,11 @@ export default function BroadcastsPage() {
     setBroadcasts((bRes.data as Broadcast[]) ?? []);
     setDepartments((dRes.data as Department[]) ?? []);
     setLoading(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) Promise.resolve().then(() => fetchAll());
+  }, [user, fetchAll]);
 
   async function save() {
     setSaving(true);
@@ -88,11 +90,11 @@ export default function BroadcastsPage() {
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border capitalize ${typeColors[b.type]}`}>{b.type}</span>
                     {b.is_pinned && <Pin size={12} className="text-yellow-400" />}
-                    {b.target_department_id && <span className="text-xs text-gray-500">→ {(b.departments as any)?.name}</span>}
+                    {b.target_department_id && <span className="text-xs text-gray-500">→ {b.departments?.name}</span>}
                   </div>
                   <h3 className="font-semibold text-gray-100 mb-1">{b.title}</h3>
                   <p className="text-sm text-gray-400 line-clamp-2">{b.message}</p>
-                  <p className="text-xs text-gray-400 mt-2">By {(b.profiles as any)?.full_name ?? "Admin"} · {fmt(b.created_at)}</p>
+                  <p className="text-xs text-gray-400 mt-2">By {b.profiles?.full_name ?? "Admin"} · {fmt(b.created_at)}</p>
                 </div>
                 <div className="flex gap-2 ml-4 shrink-0">
                   <button onClick={() => togglePin(b)} className={`p-1.5 rounded transition-colors ${b.is_pinned ? "text-yellow-400 hover:text-yellow-300" : "text-gray-500 hover:text-yellow-400"} hover:bg-yellow-500/10`}>

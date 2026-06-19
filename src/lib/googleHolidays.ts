@@ -6,7 +6,9 @@ export interface FetchedHoliday {
   description: string;
 }
 
-export async function fetchGoogleHolidaysForYear(year: number): Promise<FetchedHoliday[]> {
+export async function fetchGoogleHolidaysForYear(
+  year: number,
+): Promise<FetchedHoliday[]> {
   const apiKey = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY as string;
   if (!apiKey) throw new Error("Google Calendar API key is not configured.");
 
@@ -14,14 +16,23 @@ export async function fetchGoogleHolidaysForYear(year: number): Promise<FetchedH
   const timeMax = encodeURIComponent(`${year}-12-31T23:59:59Z`);
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(INDIAN_CALENDAR_ID)}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&key=${apiKey}`;
 
+  interface GoogleCalendarEvent {
+    summary?: string;
+    description?: string;
+    start?: { date?: string; dateTime?: string };
+  }
+
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Google Calendar API responded with ${res.status}`);
-  const data = await res.json();
+  if (!res.ok)
+    throw new Error(`Google Calendar API responded with ${res.status}`);
+  const data: { items?: GoogleCalendarEvent[] } = await res.json();
   if (!data.items?.length) return [];
 
-  return data.items.map((event: any) => ({
+  return data.items.map((event) => ({
     title: event.summary ?? "Holiday",
-    holiday_date: (event.start?.date ?? event.start?.dateTime ?? "").split("T")[0],
+    holiday_date: (event.start?.date ?? event.start?.dateTime ?? "").split(
+      "T",
+    )[0],
     description: event.description ?? "",
   }));
 }
