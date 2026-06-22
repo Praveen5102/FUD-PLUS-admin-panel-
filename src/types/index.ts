@@ -15,7 +15,7 @@ export interface Company {
 
 export interface UserRole {
   id: string;
-  name: "super_admin" | "admin" | "manager" | "employee";
+  name: "super_admin" | "admin" | "hr" | "manager" | "employee";
   description: string | null;
 }
 
@@ -68,6 +68,24 @@ export interface Profile {
   is_first_login: boolean;
   last_login_at: string | null;
   created_at: string;
+  // KYC
+  dob: string | null;
+  aadhar_number: string | null;
+  pan_number: string | null;
+  // Bank details
+  bank_account_number: string | null;
+  ifsc_code: string | null;
+  bank_name: string | null;
+  // Emergency contact
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  emergency_contact_relation: string | null;
+  // Permanent address
+  permanent_address_line1: string | null;
+  permanent_address_line2: string | null;
+  permanent_city: string | null;
+  permanent_state: string | null;
+  permanent_pincode: string | null;
   // Joined relations
   departments?: Department;
   user_roles?: UserRole;
@@ -168,4 +186,26 @@ export interface AuditLog {
 export interface AuthUser {
   profile: Profile;
   role: UserRole["name"];
+}
+
+export interface CompanyLocation {
+  id: string;
+  company_id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radius_in_meters: number;
+  is_active: boolean;
+}
+
+export interface Notification {
+  id: string;
+  company_id: string;
+  user_id: string;
+  title: string;
+  message: string | null;
+  type: "attendance" | "leave" | "broadcast" | "system" | "alert";
+  reference_id: string | null;
+  is_read: boolean;
+  created_at: string;
 }

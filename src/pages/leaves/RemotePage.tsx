@@ -78,7 +78,7 @@ export default function RemotePage() {
           profile_id: req.employee_id,
           title: `Remote Request ${actionModal.action === "approved" ? "Approved" : "Rejected"}`,
           message: req.is_attendance_request
-            ? `Your remote check-in request has been ${actionModal.action}.${adminNote ? ` Note: ${adminNote}` : ""}`
+            ? `Your remote clock-in request has been ${actionModal.action}.${adminNote ? ` Note: ${adminNote}` : ""}`
             : `Your ${typeLabel[req.request_type]} request has been ${actionModal.action}.${adminNote ? ` Note: ${adminNote}` : ""}`,
           type: "attendance",
           reference_id: req.id,
@@ -144,7 +144,7 @@ export default function RemotePage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded text-xs">
-                      {r.is_attendance_request ? "Instant Check-In" : typeLabel[r.request_type]}
+                      {r.is_attendance_request ? "Instant Clock-In" : typeLabel[r.request_type]}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-xs">{fmt(r.from_date)} → {fmt(r.to_date)}</td>

@@ -79,9 +79,15 @@ export default function HolidaysPage() {
     }
   }
 
+  // Holidays page only needs to surface what's coming up — past holidays
+  // stay in the DB (sync dedup relies on `holidays` holding the full list)
+  // but are hidden from this view.
+  const today = new Date().toISOString().split("T")[0];
+  const upcomingHolidays = holidays.filter((h) => h.holiday_date >= today);
+
   const groupByMonth = () => {
     const groups: Record<string, Holiday[]> = {};
-    holidays.forEach((h) => {
+    upcomingHolidays.forEach((h) => {
       const month = new Date(h.holiday_date).toLocaleDateString("en-IN", { year: "numeric", month: "long" });
       if (!groups[month]) groups[month] = [];
       groups[month].push(h);
@@ -93,7 +99,7 @@ export default function HolidaysPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
-          <p className="text-sm text-gray-500 mt-1">{holidays.length} holidays configured</p>
+          <p className="text-sm text-gray-500 mt-1">{upcomingHolidays.length} upcoming holidays</p>
         </div>
         <div className="flex flex-wrap gap-2 sm:gap-3">
           <button onClick={fetchHolidays} className="p-2 text-gray-400 hover:text-gray-100 hover:bg-gray-800 rounded-lg transition-colors"><RefreshCw size={16} /></button>
@@ -113,10 +119,10 @@ export default function HolidaysPage() {
 
       {loading ? (
         <div className="flex justify-center py-16"><div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" /></div>
-      ) : holidays.length === 0 ? (
+      ) : upcomingHolidays.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <Sun size={32} className="mx-auto mb-3 opacity-30" />
-          No holidays added yet.
+          No upcoming holidays.
         </div>
       ) : (
         <div className="space-y-8">

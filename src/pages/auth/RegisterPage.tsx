@@ -338,7 +338,7 @@ export default function RegisterPage() {
           {step === 1 && (
             <div className="space-y-4">
               <h3 className="font-semibold text-gray-100 mb-4">Office Location</h3>
-              <p className="text-sm text-gray-400">This location is used for GPS-based attendance check-in radius verification.</p>
+              <p className="text-sm text-gray-400">This location is used for GPS-based attendance clock-in radius verification.</p>
               <Field label="Location Name">
                 <Input value={location.name} onChange={(e) => setLocation({ ...location, name: e.target.value })} placeholder="Head Office" />
               </Field>
@@ -359,10 +359,10 @@ export default function RegisterPage() {
                 {locating ? <div className="w-3.5 h-3.5 border-2 border-green-400/30 border-t-green-400 rounded-full animate-spin" /> : <MapPin size={14} />}
                 Use my current location
               </button>
-              <Field label="Check-in Radius (meters)">
+              <Field label="Clock-in Radius (meters)">
                 <Input type="number" value={location.radius_in_meters} onChange={(e) => setLocation({ ...location, radius_in_meters: e.target.value })} placeholder="100" min="10" max="5000" />
               </Field>
-              <p className="text-xs text-gray-500">Recommended: 50–200 m. Employees must be within this radius to check in.</p>
+              <p className="text-xs text-gray-500">Recommended: 50–200 m. Employees must be within this radius to clock in.</p>
             </div>
           )}
 

@@ -110,8 +110,8 @@ export default function ReportsPage() {
           "Employee Name": r.profiles?.full_name ?? "—",
           "Employee ID": r.profiles?.employee_id ?? "—",
           "Department": r.profiles?.departments?.name ?? "—",
-          "Check-In": toTime(r.check_in),
-          "Check-Out": toTime(r.check_out),
+          "Clock-In": toTime(r.check_in),
+          "Clock-Out": toTime(r.check_out),
           "Total Hours": r.total_hours ?? "—",
           "Mode": r.attendance_mode ?? "—",
           "Status": r.attendance_status ?? "—",
@@ -228,7 +228,7 @@ export default function ReportsPage() {
           <div className="p-4 bg-gray-800 rounded-lg border border-gray-700 text-sm text-gray-400">
             <p className="font-medium text-gray-300 mb-1">Included sheets:</p>
             <ul className="list-disc list-inside space-y-1 text-xs">
-              {exportType !== "summary" && <li>Attendance — all matching records with check-in/out times, hours, status</li>}
+              {exportType !== "summary" && <li>Attendance — all matching records with clock-in/out times, hours, status</li>}
               {(exportType === "full" || exportType === "department" || exportType === "summary") && (
                 <li>Summary by Department — totals per department</li>
               )}

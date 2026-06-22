@@ -12,11 +12,26 @@ interface EmployeeForm {
   full_name: string; email: string; phone: string;
   department_id: string; employee_id: string;
   joining_date: string; status: "active" | "inactive" | "resigned";
+  role_id: string;
+  dob: string; aadhar_number: string; pan_number: string;
+  bank_account_number: string; ifsc_code: string; bank_name: string;
+  emergency_contact_name: string; emergency_contact_phone: string; emergency_contact_relation: string;
+  permanent_address_line1: string; permanent_address_line2: string;
+  permanent_city: string; permanent_state: string; permanent_pincode: string;
 }
+
+// Roles assignable from this form — manager/super_admin are managed elsewhere.
+const ASSIGNABLE_ROLES = ["employee", "hr", "admin"] as const;
 
 const emptyForm: EmployeeForm = {
   full_name: "", email: "", phone: "", department_id: "", employee_id: "",
   joining_date: new Date().toISOString().split("T")[0], status: "active",
+  role_id: "",
+  dob: "", aadhar_number: "", pan_number: "",
+  bank_account_number: "", ifsc_code: "", bank_name: "",
+  emergency_contact_name: "", emergency_contact_phone: "", emergency_contact_relation: "",
+  permanent_address_line1: "", permanent_address_line2: "",
+  permanent_city: "", permanent_state: "", permanent_pincode: "",
 };
 
 function generatePassword() {
@@ -32,6 +47,7 @@ export default function EmployeesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [employees, setEmployees] = useState<Profile[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -47,15 +63,17 @@ export default function EmployeesPage() {
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [empRes, deptRes] = await Promise.all([
+    const [empRes, deptRes, roleRes] = await Promise.all([
       supabase.from("profiles")
         .select("*, departments(id, name), user_roles(id, name)")
         .eq("company_id", user!.profile.company_id)
         .order("created_at", { ascending: false }),
       supabase.from("departments").select("*").eq("company_id", user!.profile.company_id).eq("is_active", true),
+      supabase.from("user_roles").select("id, name").in("name", ASSIGNABLE_ROLES),
     ]);
     setEmployees((empRes.data as Profile[]) ?? []);
     setDepartments((deptRes.data as Department[]) ?? []);
+    setRoles((roleRes.data as { id: string; name: string }[]) ?? []);
     setLoading(false);
   }, [user]);
 
@@ -83,7 +101,8 @@ export default function EmployeesPage() {
 
   function openCreate() {
     setEditTarget(null);
-    setForm(emptyForm);
+    const defaultRole = roles.find((r) => r.name === "employee");
+    setForm({ ...emptyForm, role_id: defaultRole?.id ?? "" });
     setPhotoFile(null);
     setPhotoPreview(null);
     setError("");
@@ -96,6 +115,13 @@ export default function EmployeesPage() {
       full_name: emp.full_name, email: emp.email, phone: emp.phone ?? "",
       department_id: emp.department_id ?? "", employee_id: emp.employee_id,
       joining_date: emp.joining_date ?? "", status: emp.status,
+      role_id: emp.role_id ?? "",
+      dob: emp.dob ?? "", aadhar_number: emp.aadhar_number ?? "", pan_number: emp.pan_number ?? "",
+      bank_account_number: emp.bank_account_number ?? "", ifsc_code: emp.ifsc_code ?? "", bank_name: emp.bank_name ?? "",
+      emergency_contact_name: emp.emergency_contact_name ?? "", emergency_contact_phone: emp.emergency_contact_phone ?? "",
+      emergency_contact_relation: emp.emergency_contact_relation ?? "",
+      permanent_address_line1: emp.permanent_address_line1 ?? "", permanent_address_line2: emp.permanent_address_line2 ?? "",
+      permanent_city: emp.permanent_city ?? "", permanent_state: emp.permanent_state ?? "", permanent_pincode: emp.permanent_pincode ?? "",
     });
     setPhotoFile(null);
     setPhotoPreview(emp.profile_image ?? null);
@@ -119,6 +145,21 @@ export default function EmployeesPage() {
           department_id: form.department_id || null,
           joining_date: form.joining_date || null,
           status: form.status,
+          role_id: form.role_id || null,
+          dob: form.dob || null,
+          aadhar_number: form.aadhar_number || null,
+          pan_number: form.pan_number || null,
+          bank_account_number: form.bank_account_number || null,
+          ifsc_code: form.ifsc_code || null,
+          bank_name: form.bank_name || null,
+          emergency_contact_name: form.emergency_contact_name || null,
+          emergency_contact_phone: form.emergency_contact_phone || null,
+          emergency_contact_relation: form.emergency_contact_relation || null,
+          permanent_address_line1: form.permanent_address_line1 || null,
+          permanent_address_line2: form.permanent_address_line2 || null,
+          permanent_city: form.permanent_city || null,
+          permanent_state: form.permanent_state || null,
+          permanent_pincode: form.permanent_pincode || null,
         }).eq("id", editTarget.id);
         if (upErr) throw upErr;
         setShowModal(false);
@@ -147,6 +188,21 @@ export default function EmployeesPage() {
             department_id: form.department_id || null, employee_id: form.employee_id,
             joining_date: form.joining_date || null, profile_image: uploadedImage,
             password,
+            role_id: form.role_id || null,
+            dob: form.dob || null,
+            aadhar_number: form.aadhar_number || null,
+            pan_number: form.pan_number || null,
+            bank_account_number: form.bank_account_number || null,
+            ifsc_code: form.ifsc_code || null,
+            bank_name: form.bank_name || null,
+            emergency_contact_name: form.emergency_contact_name || null,
+            emergency_contact_phone: form.emergency_contact_phone || null,
+            emergency_contact_relation: form.emergency_contact_relation || null,
+            permanent_address_line1: form.permanent_address_line1 || null,
+            permanent_address_line2: form.permanent_address_line2 || null,
+            permanent_city: form.permanent_city || null,
+            permanent_state: form.permanent_state || null,
+            permanent_pincode: form.permanent_pincode || null,
           },
         });
         if (fnErr || data?.success === false) throw new Error(fnErr?.message ?? data?.error ?? "Failed to create employee.");
@@ -342,6 +398,115 @@ export default function EmployeesPage() {
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Role</label>
+            <select
+              value={form.role_id}
+              onChange={(e) => setForm({ ...form, role_id: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500"
+            >
+              <option value="">Select role…</option>
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>{r.name === "hr" ? "HR" : r.name[0].toUpperCase() + r.name.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+
+        </div>
+
+        {/* Personal & KYC */}
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-3">Personal & KYC</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Date of Birth</label>
+            <input type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Aadhar Number</label>
+            <input value={form.aadhar_number} onChange={(e) => setForm({ ...form, aadhar_number: e.target.value.replace(/\D/g, "").slice(0, 12) })}
+              placeholder="12-digit number" maxLength={12}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">PAN Number</label>
+            <input value={form.pan_number} onChange={(e) => setForm({ ...form, pan_number: e.target.value.toUpperCase().slice(0, 10) })}
+              placeholder="ABCDE1234F" maxLength={10}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500 uppercase" />
+          </div>
+        </div>
+
+        {/* Bank Details */}
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-3">Bank Details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Account Number</label>
+            <input value={form.bank_account_number} onChange={(e) => setForm({ ...form, bank_account_number: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">IFSC Code</label>
+            <input value={form.ifsc_code} onChange={(e) => setForm({ ...form, ifsc_code: e.target.value.toUpperCase().slice(0, 11) })}
+              placeholder="ABCD0123456" maxLength={11}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500 uppercase" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Bank Name</label>
+            <input value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+
+        {/* Emergency Contact */}
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-3">Emergency Contact</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Contact Name</label>
+            <input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Contact Phone</label>
+            <input value={form.emergency_contact_phone} onChange={(e) => setForm({ ...form, emergency_contact_phone: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Relation</label>
+            <input value={form.emergency_contact_relation} onChange={(e) => setForm({ ...form, emergency_contact_relation: e.target.value })}
+              placeholder="e.g. Father, Spouse"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+
+        {/* Permanent Address */}
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-3">Permanent Address</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <label className="block text-sm text-gray-400 mb-1.5">Address Line 1</label>
+            <input value={form.permanent_address_line1} onChange={(e) => setForm({ ...form, permanent_address_line1: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm text-gray-400 mb-1.5">Address Line 2</label>
+            <input value={form.permanent_address_line2} onChange={(e) => setForm({ ...form, permanent_address_line2: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">City</label>
+            <input value={form.permanent_city} onChange={(e) => setForm({ ...form, permanent_city: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">State</label>
+            <input value={form.permanent_state} onChange={(e) => setForm({ ...form, permanent_state: e.target.value })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Pincode</label>
+            <input value={form.permanent_pincode} onChange={(e) => setForm({ ...form, permanent_pincode: e.target.value.replace(/\D/g, "").slice(0, 6) })}
+              maxLength={6}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
+          </div>
         </div>
 
         {!editTarget && (

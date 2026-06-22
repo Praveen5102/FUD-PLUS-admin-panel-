@@ -75,8 +75,8 @@ export default function AttendancePage() {
               <tr className="border-b border-gray-800">
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Employee</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Check-In</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Check-Out</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Clock-In</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Clock-Out</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Hours</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Mode</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>

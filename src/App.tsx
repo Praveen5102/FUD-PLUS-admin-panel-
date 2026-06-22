@@ -16,17 +16,71 @@ import ReportsPage from "./pages/reports/ReportsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import EmployeeDetailPage from "./pages/employees/EmployeeDetailPage";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+import EmployeeLayout from "./components/EmployeeLayout";
+import EmployeeHomePage from "./pages/employee/EmployeeHomePage";
+import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
+import EmployeeCalendarPage from "./pages/employee/EmployeeCalendarPage";
+import EmployeeBroadcastsPage from "./pages/employee/EmployeeBroadcastsPage";
+import BroadcastDetailPage from "./pages/employee/BroadcastDetailPage";
+import EmployeeProfilePage from "./pages/employee/EmployeeProfilePage";
+import NotificationsPage from "./pages/shared/NotificationsPage";
+
+const STAFF_ROLES = ["super_admin", "admin", "hr"];
+
+function Spinner() {
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+    </div>
+  );
+}
+
+// Mirrors the mobile app's AppNavigator: not logged in -> auth screens,
+// admin/hr -> the admin web app, employee/manager -> the employee web app.
+function AuthGate() {
   const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
   if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+  return STAFF_ROLES.includes(user.role) ? <AdminRoutes /> : <EmployeeRoutes />;
+}
+
+function AdminRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="employees" element={<EmployeesPage />} />
+        <Route path="employees/:id" element={<EmployeeDetailPage />} />
+        <Route path="attendance" element={<AttendancePage />} />
+        <Route path="leaves" element={<LeavesPage />} />
+        <Route path="remote" element={<RemotePage />} />
+        <Route path="departments" element={<DepartmentsPage />} />
+        <Route path="broadcasts" element={<BroadcastsPage />} />
+        <Route path="holidays" element={<HolidaysPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+function EmployeeRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<EmployeeLayout />}>
+        <Route index element={<EmployeeHomePage />} />
+        <Route path="history" element={<AttendanceHistoryPage />} />
+        <Route path="calendar" element={<EmployeeCalendarPage />} />
+        <Route path="broadcasts" element={<EmployeeBroadcastsPage />} />
+        <Route path="broadcasts/:id" element={<BroadcastDetailPage />} />
+        <Route path="profile" element={<EmployeeProfilePage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
 export default function App() {
@@ -37,29 +91,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Protected — all under the sidebar Layout */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<DashboardPage />} />
-          <Route path="employees" element={<EmployeesPage />} />
-          <Route path="employees/:id" element={<EmployeeDetailPage />} />
-          <Route path="attendance" element={<AttendancePage />} />
-          <Route path="leaves" element={<LeavesPage />} />
-          <Route path="remote" element={<RemotePage />} />
-          <Route path="departments" element={<DepartmentsPage />} />
-          <Route path="broadcasts" element={<BroadcastsPage />} />
-          <Route path="holidays" element={<HolidaysPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Everything else branches on auth + role */}
+        <Route path="/*" element={<AuthGate />} />
       </Routes>
     </BrowserRouter>
   );

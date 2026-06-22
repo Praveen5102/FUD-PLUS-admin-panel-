@@ -106,7 +106,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Employee tried to sign in here — this panel is admin-only */}
+      {/* Account has no recognized role assigned */}
       {blocked && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={dismissBlocked} />
@@ -114,10 +114,9 @@ export default function LoginPage() {
             <div className="w-14 h-14 rounded-2xl bg-indigo-500/15 flex items-center justify-center mx-auto mb-4">
               <Smartphone size={26} className="text-indigo-400" />
             </div>
-            <h3 className="text-lg font-bold text-gray-100 mb-2">Not Available Here</h3>
+            <h3 className="text-lg font-bold text-gray-100 mb-2">Account Not Set Up</h3>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              This web panel is for company admins only. Employees use the FUD Plus mobile app
-              for check-in, leave, and everything else.
+              Your account doesn't have a role assigned yet. Contact your company admin to get access.
             </p>
             <button
               onClick={dismissBlocked}

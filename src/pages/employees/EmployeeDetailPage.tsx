@@ -6,6 +6,7 @@ import { statusToBadge } from "../../lib/badge";
 import {
   ArrowLeft, Mail, Phone, Calendar, CreditCard, Clock,
   CheckCircle2, XCircle, Pencil, Trash2, Image as ImageIcon, X, CalendarCheck,
+  Landmark, MapPin, UserRound, Cake,
 } from "lucide-react";
 import type { Profile, AttendanceRecord } from "../../types";
 
@@ -129,6 +130,72 @@ export default function EmployeeDetailPage() {
         ))}
       </div>
 
+      {/* Personal / KYC, Bank, Emergency Contact, Permanent Address */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="glass-card rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-4">
+            <Cake size={15} className="text-indigo-400" /> Personal & KYC
+          </h2>
+          <dl className="grid grid-cols-2 gap-y-3 text-sm">
+            <dt className="text-gray-500">Date of Birth</dt>
+            <dd className="text-gray-200">{fmtDate(employee.dob)}</dd>
+            <dt className="text-gray-500">Aadhar Number</dt>
+            <dd className="text-gray-200 font-mono">{employee.aadhar_number || "—"}</dd>
+            <dt className="text-gray-500">PAN Number</dt>
+            <dd className="text-gray-200 font-mono">{employee.pan_number || "—"}</dd>
+          </dl>
+        </div>
+
+        <div className="glass-card rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-4">
+            <Landmark size={15} className="text-indigo-400" /> Bank Details
+          </h2>
+          <dl className="grid grid-cols-2 gap-y-3 text-sm">
+            <dt className="text-gray-500">Account Number</dt>
+            <dd className="text-gray-200 font-mono">
+              {employee.bank_account_number ? `•••• ${employee.bank_account_number.slice(-4)}` : "—"}
+            </dd>
+            <dt className="text-gray-500">IFSC Code</dt>
+            <dd className="text-gray-200 font-mono">{employee.ifsc_code || "—"}</dd>
+            <dt className="text-gray-500">Bank Name</dt>
+            <dd className="text-gray-200">{employee.bank_name || "—"}</dd>
+          </dl>
+        </div>
+
+        <div className="glass-card rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-4">
+            <UserRound size={15} className="text-indigo-400" /> Emergency Contact
+          </h2>
+          <dl className="grid grid-cols-2 gap-y-3 text-sm">
+            <dt className="text-gray-500">Name</dt>
+            <dd className="text-gray-200">{employee.emergency_contact_name || "—"}</dd>
+            <dt className="text-gray-500">Phone</dt>
+            <dd className="text-gray-200">{employee.emergency_contact_phone || "—"}</dd>
+            <dt className="text-gray-500">Relation</dt>
+            <dd className="text-gray-200">{employee.emergency_contact_relation || "—"}</dd>
+          </dl>
+        </div>
+
+        <div className="glass-card rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-4">
+            <MapPin size={15} className="text-indigo-400" /> Permanent Address
+          </h2>
+          {employee.permanent_address_line1 || employee.permanent_city ? (
+            <p className="text-sm text-gray-200 leading-relaxed">
+              {[
+                employee.permanent_address_line1,
+                employee.permanent_address_line2,
+                employee.permanent_city,
+                employee.permanent_state,
+                employee.permanent_pincode,
+              ].filter(Boolean).join(", ")}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">—</p>
+          )}
+        </div>
+      </div>
+
       {/* Attendance history */}
       {focusDate && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 px-4 py-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
@@ -145,7 +212,7 @@ export default function EmployeeDetailPage() {
         <div className="px-6 py-4 border-b border-gray-800">
           <h2 className="font-semibold text-gray-100">Attendance History</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            {focusDate ? `${displayedAttendance.length} record(s) for this date` : `Last ${attendance.length} records, with check-in/out selfies`}
+            {focusDate ? `${displayedAttendance.length} record(s) for this date` : `Last ${attendance.length} records, with clock-in/out selfies`}
           </p>
         </div>
         <div className="overflow-x-auto">
@@ -153,8 +220,8 @@ export default function EmployeeDetailPage() {
           <thead>
             <tr className="border-b border-gray-800">
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Date</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Check-In</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Check-Out</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Clock-In</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Clock-Out</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Hours</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Selfies</th>
@@ -171,13 +238,13 @@ export default function EmployeeDetailPage() {
                 <td className="px-6 py-3">
                   <div className="flex gap-2">
                     {r.check_in_selfie ? (
-                      <button onClick={() => setSelfieView({ url: r.check_in_selfie!, label: "Check-In Selfie" })}>
-                        <img src={r.check_in_selfie} alt="check-in" className="w-8 h-8 rounded-lg object-cover border border-gray-700 hover:border-indigo-500 transition-colors" />
+                      <button onClick={() => setSelfieView({ url: r.check_in_selfie!, label: "Clock-In Selfie" })}>
+                        <img src={r.check_in_selfie} alt="clock-in" className="w-8 h-8 rounded-lg object-cover border border-gray-700 hover:border-indigo-500 transition-colors" />
                       </button>
                     ) : <span className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center"><ImageIcon size={12} className="text-gray-400" /></span>}
                     {r.check_out_selfie ? (
-                      <button onClick={() => setSelfieView({ url: r.check_out_selfie!, label: "Check-Out Selfie" })}>
-                        <img src={r.check_out_selfie} alt="check-out" className="w-8 h-8 rounded-lg object-cover border border-gray-700 hover:border-indigo-500 transition-colors" />
+                      <button onClick={() => setSelfieView({ url: r.check_out_selfie!, label: "Clock-Out Selfie" })}>
+                        <img src={r.check_out_selfie} alt="clock-out" className="w-8 h-8 rounded-lg object-cover border border-gray-700 hover:border-indigo-500 transition-colors" />
                       </button>
                     ) : <span className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center"><ImageIcon size={12} className="text-gray-400" /></span>}
                   </div>

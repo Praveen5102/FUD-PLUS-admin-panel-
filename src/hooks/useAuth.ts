@@ -5,9 +5,8 @@ import type { Profile, AuthUser } from "../types";
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  // Set when a non-admin (employee) account tries to sign in here, so
-  // LoginPage can show a clear "mobile only" popup instead of just
-  // silently bouncing them back with no explanation.
+  // Set when a profile has no recognized role, so LoginPage can show a
+  // clear explanation instead of just silently bouncing them back.
   const [blocked, setBlocked] = useState(false);
 
   const fetchProfile = useCallback(async (authUserId: string) => {
@@ -19,7 +18,12 @@ export function useAuth() {
 
     if (data) {
       const role = (data.user_roles as { name: AuthUser["role"] } | null)?.name as AuthUser["role"];
-      if (!["super_admin", "admin"].includes(role)) {
+      // Every staff/employee role gets a web session now — admin/hr land on
+      // the admin Layout, employee/manager land on EmployeeLayout (see
+      // App.tsx), mirroring the mobile app's AppNavigator split. Only a
+      // missing/unrecognized role is blocked.
+      const knownRoles: AuthUser["role"][] = ["super_admin", "admin", "hr", "manager", "employee"];
+      if (!knownRoles.includes(role)) {
         await supabase.auth.signOut();
         setUser(null);
         setBlocked(true);
