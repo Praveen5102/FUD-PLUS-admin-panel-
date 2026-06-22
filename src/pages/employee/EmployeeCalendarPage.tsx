@@ -47,12 +47,14 @@ export default function EmployeeCalendarPage() {
     Promise.resolve().then(() => fetchAll());
   }, [fetchAll]);
 
+  const todayStr = new Date().toISOString().split("T")[0];
   const daysBetween = (from: string, to: string) =>
     Math.max(1, Math.round((new Date(to).getTime() - new Date(from).getTime()) / (1000 * 60 * 60 * 24) + 1));
   const totalDays = fromDate && toDate ? daysBetween(fromDate, toDate) : 0;
 
   async function submitLeave() {
     if (!profile || !leaveTypeId || !fromDate || !toDate || !reason.trim()) { alert("Please fill all fields."); return; }
+    if (fromDate < todayStr) { alert("From date can't be in the past."); return; }
     if (new Date(toDate) < new Date(fromDate)) { alert("To date must be on or after from date."); return; }
     setSubmitting(true);
     try {
@@ -178,12 +180,17 @@ export default function EmployeeCalendarPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1.5">From</label>
-                  <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)}
+                  <input type="date" value={fromDate} min={todayStr}
+                    onChange={(e) => {
+                      setFromDate(e.target.value);
+                      if (toDate && toDate < e.target.value) setToDate(e.target.value);
+                    }}
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
                 </div>
                 <div>
                   <label className="block text-sm text-gray-400 mb-1.5">To</label>
-                  <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)}
+                  <input type="date" value={toDate} min={fromDate || todayStr}
+                    onChange={(e) => setToDate(e.target.value)}
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500" />
                 </div>
               </div>

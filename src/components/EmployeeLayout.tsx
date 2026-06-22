@@ -32,8 +32,9 @@ export default function EmployeeLayout() {
 
   return (
     <div className="app-gradient-bg flex flex-col h-screen text-gray-100 overflow-hidden">
-      {/* Topbar */}
-      <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/8 glass-card border-t-0 border-x-0 rounded-none shrink-0">
+      {/* Topbar — hidden on phone-width screens, matching the mobile app's
+          per-screen headers instead of a generic browser-style top bar */}
+      <header className="hidden sm:flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/8 glass-card border-t-0 border-x-0 rounded-none shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <img src={logo} alt="FUD Plus" className="w-8 h-8 rounded-lg object-cover shrink-0" />
           <div className="min-w-0">
@@ -60,7 +61,15 @@ export default function EmployeeLayout() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24">
+      {/* Phone-width-only floating notification bell, since the full topbar is hidden */}
+      <NavLink
+        to="/notifications"
+        className="sm:hidden fixed top-4 right-4 z-40 w-10 h-10 rounded-full border border-white/10 bg-white/8 backdrop-blur-xl flex items-center justify-center text-gray-200 shadow-lg"
+      >
+        <Bell size={17} />
+      </NavLink>
+
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-0">
         <Outlet />
       </main>
 
